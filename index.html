@@ -35,8 +35,9 @@
             top: 0;
             left: 0;
             border: none;
-            /* 3000px provides a 33% scale relative to a standard 1000px landscape view */
-            width: 3000px; 
+            /* 2800px provides ~42% scale. 
+               Lower this number to make it bigger, increase it to make it smaller. */
+            width: 2800px; 
             height: 2500px;
             transform-origin: 0 0;
             background: #000;
@@ -104,8 +105,8 @@
     
     function adjustScale() {
         const containerWidth = container.offsetWidth;
-        /* Increase this to 4000 to make it smaller, decrease to 2000 to make it larger */
-        const virtualWidth = 3000; 
+        // Setting virtualWidth to 2800 for the requested scale
+        const virtualWidth = 2800; 
         const scaleFactor = containerWidth / virtualWidth;
         frame.style.transform = `scale(${scaleFactor})`;
     }
