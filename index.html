@@ -12,6 +12,7 @@
         }
         .container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
+        /* Top 50%: Speed Gauge */
         .top-half { 
             flex: 1; position: relative; 
             background: #000; display: flex; flex-direction: column;
@@ -20,6 +21,7 @@
             z-index: 2;
         }
 
+        /* Bottom 50%: Tank Display */
         .bottom-half { 
             flex: 1; 
             background: #000; 
@@ -33,9 +35,9 @@
             top: 0;
             left: 0;
             border: none;
-            /* High virtual width to force extreme scaling */
-            width: 3600px; 
-            height: 3000px;
+            /* 3000px provides a 33% scale relative to a standard 1000px landscape view */
+            width: 3000px; 
+            height: 2500px;
             transform-origin: 0 0;
             background: #000;
         }
@@ -102,8 +104,8 @@
     
     function adjustScale() {
         const containerWidth = container.offsetWidth;
-        // 3600 (3x the standard 1200) results in ~33% visual scale
-        const virtualWidth = 3600; 
+        /* Increase this to 4000 to make it smaller, decrease to 2000 to make it larger */
+        const virtualWidth = 3000; 
         const scaleFactor = containerWidth / virtualWidth;
         frame.style.transform = `scale(${scaleFactor})`;
     }
