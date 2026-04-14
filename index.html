@@ -10,9 +10,9 @@
             background: #000; color: #fff; font-family: sans-serif;
             overflow: hidden;
         }
-        .container { display: flex; flex-direction: column; height: 100vh; }
+        .container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
-        /* Top 50%: HeliSpeed UI */
+        /* Top 50%: Gauge */
         .top-half { 
             flex: 1; position: relative; 
             background: #000; display: flex; flex-direction: column;
@@ -21,7 +21,7 @@
             z-index: 2;
         }
 
-        /* Bottom 50%: Scaled Tank Module */
+        /* Bottom 50%: Scaled Iframe */
         .bottom-half { 
             flex: 1; 
             background: #1a1a1a; 
@@ -31,33 +31,35 @@
         }
 
         .scaled-iframe {
-            /* Force a landscape-style width even in portrait */
-            width: 1200px; 
-            /* Set height to fill the bottom half (scaled) */
-            height: 200%; 
-            border: none;
             position: absolute;
             top: 0;
             left: 0;
+            border: none;
             
-            /* Magic Scale: Phone Width / Virtual Width */
-            transform: scale(calc(100vw / 1200));
+            /* Define the virtual landscape width (e.g., 1024px) 
+               This ensures the elements in tank.html stay in their landscape layout. */
+            width: 1024px; 
+            height: 1000px; /* High height to prevent internal scrolling */
+            
+            /* Fluid Scale: calculates the ratio of Phone Width / 1024 */
+            transform: scale(calc(100vw / 1024));
             transform-origin: 0 0;
+            
+            background: #000;
         }
         
-        /* Floating Controls */
+        /* Floating UI Controls */
         .controls {
-            position: absolute; top: 10px; width: 92%;
+            position: absolute; top: 15px; width: 92%;
             display: flex; justify-content: space-between; z-index: 10;
         }
         select, button {
             background: #222; color: #fff; border: 1px solid #444; 
             padding: 8px; font-size: 0.85rem; border-radius: 4px;
-            outline: none;
         }
-        #engage-btn.active { background: #dc3545; border-color: #ff0000; }
+        #engage-btn.active { background: #dc3545; }
 
-        /* Gauge Elements */
+        /* Gauge Styling */
         #gauge-svg { width: 95vw; max-width: 450px; margin-top: 20px; }
         .digital-speed { font-size: 22px; font-weight: bold; fill: #00ff00; }
         .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
@@ -87,7 +89,6 @@
                 <line x1="100" y1="20" x2="100" y2="28" transform="rotate(54 100 100)" />
                 <line x1="100" y1="20" x2="100" y2="28" transform="rotate(72 100 100)" />
             </g>
-
             <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
             <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS</text>
             
@@ -111,6 +112,7 @@
     
     let watchID = null;
 
+    // Build speed dropdown
     for (let i = 0; i <= 30; i++) {
         let opt = document.createElement('option');
         opt.value = i;
