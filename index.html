@@ -60,7 +60,15 @@
         .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
     </style>
 </head>
-<body>
+<link rel="manifest" href="manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log("Offline Mode Active"))
+      .catch(err => console.log("Service Worker Failed", err));
+  }
+</script>
+    <body>
 
 <div class="container">
     <div class="top-half">
