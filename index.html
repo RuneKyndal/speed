@@ -21,7 +21,7 @@
             z-index: 2;
         }
 
-        /* Bottom 50%: Scaled Iframe */
+        /* Bottom 50%: Responsive Container */
         .bottom-half { 
             flex: 1; 
             background: #1a1a1a; 
@@ -36,13 +36,13 @@
             left: 0;
             border: none;
             
-            /* Define the virtual landscape width (e.g., 1024px) 
-               This ensures the elements in tank.html stay in their landscape layout. */
-            width: 1024px; 
-            height: 1000px; /* High height to prevent internal scrolling */
+            /* To achieve a 50% scale that fits width, we make the 
+               iframe 200% wide and then scale it down by 0.5 */
+            width: 200vw; 
+            height: 100vh; 
             
-            /* Fluid Scale: calculates the ratio of Phone Width / 1024 */
-            transform: scale(calc(100vw / 1024));
+            /* Forced 50% Scale */
+            transform: scale(0.5);
             transform-origin: 0 0;
             
             background: #000;
@@ -112,7 +112,6 @@
     
     let watchID = null;
 
-    // Build speed dropdown
     for (let i = 0; i <= 30; i++) {
         let opt = document.createElement('option');
         opt.value = i;
