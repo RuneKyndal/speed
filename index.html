@@ -21,7 +21,7 @@
             z-index: 2;
         }
 
-        /* Bottom 50%: Landscape Iframe Container */
+        /* Bottom 50%: Scaled Tank Module */
         .bottom-half { 
             flex: 1; 
             background: #1a1a1a; 
@@ -31,50 +31,20 @@
         }
 
         .scaled-iframe {
-            /* 1. We define the landscape dimensions (swapped for rotation) */
-            /* Since the phone is portrait, the "width" of the landscape site 
-               must match the "height" of this bottom container. */
-            width: 100vh; 
-            height: 100vw; 
+            /* Force a landscape-style width even in portrait */
+            width: 1200px; 
+            /* Set height to fill the bottom half (scaled) */
+            height: 200%; 
             border: none;
             position: absolute;
-            
-            /* 2. Rotate and Position */
             top: 0;
-            left: 100%; /* Move it out of view to rotate it back in */
-            transform: rotate(90deg);
-            transform-origin: top left;
-
-            /* 3. Scaling to fit the width of the phone */
-            /* This assumes the landscape site wants to be 1200px wide */
-            /* You can adjust 1200 to match the site's natural width */
-            transform: rotate(90deg) scale(calc(100vh / 2 / 600)); 
+            left: 0;
+            
+            /* Magic Scale: Phone Width / Virtual Width */
+            transform: scale(calc(100vw / 1200));
+            transform-origin: 0 0;
         }
         
-        /* Simplified Landscape Fix: Forced Fit */
-        .landscape-iframe {
-            position: absolute;
-            width: 50vh;  /* The height of the portrait bottom-half */
-            height: 100vw; /* The width of the portrait phone */
-            top: 0;
-            left: 100%;
-            transform: rotate(90deg);
-            transform-origin: top left;
-            border: none;
-        }
-
-        /* Best Universal Landscape Fit */
-        .bottom-half iframe {
-            position: absolute;
-            /* Create a virtual landscape box */
-            width: 200%;  /* Acts as the landscape width */
-            height: 100%; /* Acts as the landscape height */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(90deg) scale(0.5);
-            border: none;
-        }
-
         /* Floating Controls */
         .controls {
             position: absolute; top: 10px; width: 92%;
@@ -117,8 +87,10 @@
                 <line x1="100" y1="20" x2="100" y2="28" transform="rotate(54 100 100)" />
                 <line x1="100" y1="20" x2="100" y2="28" transform="rotate(72 100 100)" />
             </g>
+
             <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
             <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS</text>
+            
             <g id="needle-group" style="transition: transform 0.2s linear; transform: rotate(0deg); transform-origin: 100px 100px;">
                 <line x1="100" y1="100" x2="100" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
                 <circle cx="100" cy="100" r="4" fill="#fff"/>
@@ -127,7 +99,7 @@
     </div>
 
     <div class="bottom-half">
-        <iframe src="tank/tank.html"></iframe>
+        <iframe src="tank/tank.html" class="scaled-iframe"></iframe>
     </div>
 </div>
 
@@ -154,6 +126,7 @@
         deg = Math.min(Math.max(deg, -90), 90);
         needleGroup.style.transform = `rotate(${deg}deg)`;
         speedVal.textContent = Math.round(kts);
+        
         if (Math.abs(diff) <= 1) speedVal.style.fill = "#00ff00";
         else if (Math.abs(diff) <= 2) speedVal.style.fill = "#ffcc00";
         else speedVal.style.fill = "#ff4444";
@@ -164,7 +137,7 @@
             if ("geolocation" in navigator) {
                 watchID = navigator.geolocation.watchPosition(
                     (p) => update((p.coords.speed || 0) * 1.94384),
-                    (e) => console.error("GPS Error:", e.message),
+                    (e) => console.error(e),
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
                 btn.innerText = "STOP";
