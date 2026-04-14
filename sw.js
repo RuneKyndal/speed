@@ -1,10 +1,23 @@
-const CACHE_NAME = 'heli-speed-v1';
-const assets = ['./', './index.html', './manifest.json'];
+const CACHE_NAME = 'phil-app-v1';
+const ASSETS = [
+  './',
+  './index.html', // Replace with your main file name
+  './tank/tank.html',
+  // Add paths to any CSS or JS files inside the tank folder here
+];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(assets)));
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
+  );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
 });
