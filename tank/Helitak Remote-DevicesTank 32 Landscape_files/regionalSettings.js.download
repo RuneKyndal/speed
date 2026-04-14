@@ -1,0 +1,7 @@
+_regionalSettings = {
+  "en_us": {
+    "CsvDelimiter": ",",
+    "ThousandsSeparator": ",",
+    "DecimalSymbol": "."
+  }
+}

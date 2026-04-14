@@ -1,0 +1,48 @@
+[class^="glyphicon-"],[class*=" glyphicon-"] {
+	background-size: 35px 35px !important;
+	display: inline-block;
+	width: 35px;
+	height: 35px;
+	line-height: 35px;
+	vertical-align: text-top;
+	background-repeat: no-repeat !important;
+	margin-left: 1px;
+}
+
+.glyphicon-chevron-down {
+	background-position: center !important;
+	background-image: url(/resources/chevron-down.svg) !important;
+}
+.glyphicon-chevron-up {
+	background-position: center !important;
+	background-image: url(/resources/chevron-up.svg) !important;
+}
+
+.ui-datepicker-prev span {
+    background-image: url(/resources/chevron-left.svg) !important;
+    background-position: 0px 0px !important;
+}
+
+.ui-datepicker-next span {
+    background-image: url(/resources/chevron-right.svg) !important;
+    background-position: 0px 0px !important;
+}body
+{
+		 background-color: rgba(255, 255, 255, 1);
+}
+::-webkit-input-placeholder
+{
+	 color: gray;
+}
+:-moz-placeholder
+{
+	 color: gray;
+}
+::-moz-placeholder
+{
+	 color: gray;
+}
+:-ms-input-placeholder
+{
+	 color: gray;
+}
