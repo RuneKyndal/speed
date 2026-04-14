@@ -33,9 +33,10 @@
             top: 0;
             left: 0;
             border: none;
-            /* We set a large base width to keep the landscape layout intact */
-            width: 1200px; 
-            height: 1000px;
+            /* Using a very wide virtual canvas forces the 
+               scaling math to shrink the content significantly */
+            width: 2400px; 
+            height: 2000px;
             transform-origin: 0 0;
             background: #000;
         }
@@ -100,15 +101,15 @@
     const frame = document.getElementById('tank-frame');
     const container = document.getElementById('bottom-container');
     
-    // DYNAMIC SCALING LOGIC
     function adjustScale() {
         const containerWidth = container.offsetWidth;
-        const virtualWidth = 1200; // The width tank.html expects
+        /* Changing this number from 1200 to 2400 makes 
+           everything appear half as big as before */
+        const virtualWidth = 2400; 
         const scaleFactor = containerWidth / virtualWidth;
         frame.style.transform = `scale(${scaleFactor})`;
     }
 
-    // Run on load and whenever screen rotates/resizes
     window.addEventListener('load', adjustScale);
     window.addEventListener('resize', adjustScale);
 
