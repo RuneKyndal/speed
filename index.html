@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeliSpeed Glass</title>
+    <title>the Phil App</title>
     <style>
+        /* Global Black Background */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             background: #000; color: #fff; font-family: sans-serif;
             overflow: hidden;
         }
-        .container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+        .container { 
+            display: flex; flex-direction: column; height: 100vh; width: 100vw; 
+            background: #000;
+        }
         
         .top-half { 
             flex: 1; position: relative; 
             background: #000; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid #333;
             z-index: 2;
         }
 
@@ -33,9 +37,9 @@
             top: 0;
             left: 0;
             border: none;
-            /* 2000px virtual width creates a 50% scale on most modern mobile devices */
-            width: 2000px; 
-            height: 2000px;
+            /* 1400px virtual width provides a larger scale than 1600px */
+            width: 1400px; 
+            height: 1800px;
             transform-origin: 0 0;
             background: #000;
         }
@@ -45,10 +49,11 @@
             display: flex; justify-content: space-between; z-index: 10;
         }
         select, button {
-            background: #222; color: #fff; border: 1px solid #444; 
+            background: #1a1a1a; color: #fff; border: 1px solid #444; 
             padding: 8px; font-size: 0.85rem; border-radius: 4px;
+            outline: none;
         }
-        #engage-btn.active { background: #dc3545; }
+        #engage-btn.active { background: #dc3545; border-color: #ff0000; }
 
         #gauge-svg { width: 95vw; max-width: 450px; margin-top: 20px; }
         .digital-speed { font-size: 22px; font-weight: bold; fill: #00ff00; }
@@ -63,15 +68,19 @@
             <select id="target-speed"></select>
             <button id="engage-btn">ENGAGE</button>
         </div>
+
         <svg id="gauge-svg" viewBox="0 0 200 135">
             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
             
-            <path d="M 180 100 A 80 80 0 0 0 164.7 52.9" fill="none" stroke="#ffcc00" stroke-width="12" />
             <path d="M 20 100 A 80 80 0 0 1 35.3 52.9" fill="none" stroke="#ffcc00" stroke-width="12" />
+            <path d="M 180 100 A 80 80 0 0 0 164.7 52.9" fill="none" stroke="#ffcc00" stroke-width="12" />
             <path d="M 35.3 52.9 A 80 80 0 0 1 164.7 52.9" fill="none" stroke="#00ff00" stroke-width="12" />
 
             <g stroke="#000" stroke-width="1.5">
-                <line x1="20" y1="100" x2="30" y2="100" /> <line x1="100" y1="20" x2="100" y2="30" /> <line x1="170" y1="100" x2="180" y2="100" /> <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-18 100 100)" />
+                <line x1="20" y1="100" x2="30" y2="100" />
+                <line x1="100" y1="20" x2="100" y2="30" />
+                <line x1="170" y1="100" x2="180" y2="100" />
+                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-18 100 100)" />
                 <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-36 100 100)" />
                 <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-54 100 100)" />
                 <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-72 100 100)" />
@@ -106,7 +115,7 @@
     
     function adjustScale() {
         const containerWidth = container.offsetWidth;
-        const virtualWidth = 2000; 
+        const virtualWidth = 1400; 
         const scaleFactor = containerWidth / virtualWidth;
         frame.style.transform = `scale(${scaleFactor})`;
     }
