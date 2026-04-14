@@ -41,31 +41,25 @@
             transform-origin: 0 0;
             background: #000;
         }
-
-        /* Reload button for the lower window */
-        #reload-tank {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            z-index: 20;
-            background: rgba(40, 40, 40, 0.8);
-            border: 1px solid #555;
-            color: #aaa;
-            padding: 5px 10px;
-            font-size: 10px;
-            letter-spacing: 1px;
-        }
         
         .controls {
             position: absolute; top: 15px; width: 92%;
-            display: flex; justify-content: space-between; z-index: 10;
+            display: flex; justify-content: space-between; gap: 8px; z-index: 10;
         }
+
+        /* Container for buttons to keep them together on the right */
+        .btn-group {
+            display: flex; gap: 8px;
+        }
+
         select, button {
             background: #1a1a1a; color: #fff; border: 1px solid #444; 
             padding: 8px; font-size: 0.85rem; border-radius: 4px;
             outline: none;
         }
+        
         #engage-btn.active { background: #dc3545; border-color: #ff0000; }
+        #reload-tank { background: #333; }
 
         #gauge-svg { width: 95vw; max-width: 450px; margin-top: 20px; }
         .digital-speed { font-size: 22px; font-weight: bold; fill: #00ff00; }
@@ -86,7 +80,10 @@
     <div class="top-half">
         <div class="controls">
             <select id="target-speed"></select>
-            <button id="engage-btn">ENGAGE</button>
+            <div class="btn-group">
+                <button id="reload-tank" onclick="reloadIframe()">Reload Tank</button>
+                <button id="engage-btn">ENGAGE</button>
+            </div>
         </div>
 
         <svg id="gauge-svg" viewBox="0 0 200 135">
@@ -121,7 +118,6 @@
 
     <div class="bottom-half" id="bottom-container">
         <iframe src="http://192.168.1.3/OPS/DevicesTank%2032%20Landscape" id="tank-frame"></iframe>
-        <button id="reload-tank" onclick="reloadIframe()">REFRESH TANK</button>
     </div>
 </div>
 
@@ -140,7 +136,6 @@
         frame.style.transform = `scale(${scaleFactor})`;
     }
 
-    // Function to reload only the lower tank frame if "Not Found"
     function reloadIframe() {
         frame.src = frame.src;
     }
