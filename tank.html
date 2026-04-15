@@ -16,7 +16,8 @@
         }
         
         .top-half { 
-            flex: 1; position: relative; 
+            flex: 1.4; /* Larger area for the 150% gauge */
+            position: relative; 
             background: #000; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             border-bottom: 1px solid #333;
@@ -24,7 +25,7 @@
         }
 
         .bottom-half { 
-            flex: 1; 
+            flex: 0.6; 
             background: #000; 
             overflow: hidden; 
             position: relative;
@@ -33,11 +34,8 @@
 
         #tank-frame {
             position: absolute;
-            top: 0;
-            left: 0;
-            border: none;
-            width: 1400px; 
-            height: 1800px;
+            top: 0; left: 0; border: none;
+            width: 1400px; height: 1800px;
             transform-origin: 0 0;
             background: #000;
         }
@@ -47,33 +45,24 @@
             display: flex; justify-content: space-between; gap: 8px; z-index: 10;
         }
 
-        /* Container for buttons to keep them together on the right */
-        .btn-group {
-            display: flex; gap: 8px;
-        }
+        .btn-group { display: flex; gap: 8px; }
 
         select, button {
             background: #1a1a1a; color: #fff; border: 1px solid #444; 
-            padding: 8px; font-size: 0.85rem; border-radius: 4px;
+            padding: 10px; font-size: 0.9rem; border-radius: 4px;
             outline: none;
         }
         
         #engage-btn.active { background: #dc3545; border-color: #ff0000; }
         #reload-tank { background: #333; }
 
-        #gauge-svg { width: 95vw; max-width: 450px; margin-top: 20px; }
-        .digital-speed { font-size: 22px; font-weight: bold; fill: #00ff00; }
-        .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
+        /* Gauge Scaled to 150% (Max 675px) */
+        #gauge-svg { width: 98vw; max-width: 675px; margin-top: 35px; }
+        .digital-speed { font-size: 26px; font-weight: bold; fill: #00ff00; }
+        .digital-unit { font-size: 8px; fill: #666; letter-spacing: 1.5px; }
     </style>
 </head>
 <link rel="manifest" href="tank.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log("Offline Mode Active"))
-      .catch(err => console.log("Service Worker Failed", err));
-  }
-</script>
 <body>
 
 <div class="container">
@@ -87,37 +76,50 @@
         </div>
 
         <svg id="gauge-svg" viewBox="0 0 200 135">
-            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
-            <path d="M 20 100 A 80 80 0 0 1 35.3 52.9" fill="none" stroke="#ffcc00" stroke-width="12" />
-            <path d="M 180 100 A 80 80 0 0 0 164.7 52.9" fill="none" stroke="#ffcc00" stroke-width="12" />
-            <path d="M 35.3 52.9 A 80 80 0 0 1 164.7 52.9" fill="none" stroke="#00ff00" stroke-width="12" />
+            <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#222" stroke-width="14" stroke-linecap="round"/>
+            
+            <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#ffcc00" stroke-width="14" />
+            
+            <path d="M 100 15 A 85 85 0 0 1 143.2 26.5" fill="none" stroke="#00ff00" stroke-width="14" transform="rotate(-27 100 100)" />
+            <path d="M 100 15 A 85 85 0 0 0 56.8 26.5" fill="none" stroke="#00ff00" stroke-width="14" transform="rotate(27 100 100)" />
 
             <g stroke="#000" stroke-width="1.5">
-                <line x1="20" y1="100" x2="30" y2="100" />
-                <line x1="100" y1="20" x2="100" y2="30" />
-                <line x1="170" y1="100" x2="180" y2="100" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-18 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-36 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-54 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(-72 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(18 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(36 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(54 100 100)" />
-                <line x1="100" y1="20" x2="100" y2="30" transform="rotate(72 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="30" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(9 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(18 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(27 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(36 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(45 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(54 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(63 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(72 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(81 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(90 100 100)" />
+                
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-9 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-18 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-27 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-36 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-45 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-54 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-63 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-72 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-81 100 100)" />
+                <line x1="100" y1="15" x2="100" y2="25" transform="rotate(-90 100 100)" />
             </g>
 
             <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
             <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS</text>
             
-            <g id="needle-group" style="transition: transform 0.2s linear; transform: rotate(0deg); transform-origin: 100px 100px;">
-                <line x1="100" y1="100" x2="100" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <g id="needle-group" style="transition: transform 0.1s linear; transform: rotate(0deg); transform-origin: 100px 100px;">
+                <line x1="100" y1="100" x2="100" y2="20" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
                 <circle cx="100" cy="100" r="4" fill="#fff"/>
             </g>
         </svg>
     </div>
 
     <div class="bottom-half" id="bottom-container">
-        <iframe src="http://192.168.1.3/OPS/DevicesTank%2032%20Landscape" id="tank-frame"></iframe>
+        <iframe src="http://192.168.3.1/OPS/DevicesTank%2032%20Landscape" id="tank-frame"></iframe>
     </div>
 </div>
 
@@ -130,15 +132,11 @@
     const container = document.getElementById('bottom-container');
     
     function adjustScale() {
-        const containerWidth = container.offsetWidth;
-        const virtualWidth = 1400; 
-        const scaleFactor = containerWidth / virtualWidth;
+        const scaleFactor = container.offsetWidth / 1400;
         frame.style.transform = `scale(${scaleFactor})`;
     }
 
-    function reloadIframe() {
-        frame.src = frame.src;
-    }
+    function reloadIframe() { frame.src = frame.src; }
 
     window.addEventListener('load', adjustScale);
     window.addEventListener('resize', adjustScale);
@@ -155,13 +153,13 @@
     function update(kts) {
         const target = parseFloat(targetSelect.value);
         const diff = kts - target;
-        let deg = Math.min(Math.max(diff * 18, -90), 90);
+        // 9 degrees per knot movement for 0.1kt precision
+        let deg = Math.min(Math.max(diff * 9, -90), 90);
         needleGroup.style.transform = `rotate(${deg}deg)`;
         speedVal.textContent = Math.round(kts);
         
         if (Math.abs(diff) <= 3) speedVal.style.fill = "#00ff00";
-        else if (Math.abs(diff) <= 5) speedVal.style.fill = "#ffcc00";
-        else speedVal.style.fill = "#ff4444";
+        else speedVal.style.fill = "#ffcc00";
     }
 
     btn.onclick = () => {
@@ -170,7 +168,7 @@
                 watchID = navigator.geolocation.watchPosition(
                     (p) => update((p.coords.speed || 0) * 1.94384),
                     (e) => console.error(e),
-                    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+                    { enableHighAccuracy: true, maximumAge: 0 }
                 );
                 btn.innerText = "STOP";
                 btn.classList.add('active');
