@@ -15,9 +15,9 @@
             display: flex; flex-direction: column; height: 100vh; width: 100vw; 
         }
         
-        /* Strict 50/50 Split */
+        /* 40/60 Split */
         .top-half { 
-            height: 50vh; position: relative; 
+            height: 40vh; position: relative; 
             background: #000; display: flex; flex-direction: column;
             justify-content: flex-start; align-items: center;
             border-bottom: 1px solid #333;
@@ -26,7 +26,7 @@
         }
 
         .bottom-half { 
-            height: 50vh; 
+            height: 60vh; 
             background: #000; 
             overflow: hidden; 
             position: relative;
@@ -42,7 +42,7 @@
         }
         
         .controls {
-            margin-top: 10px; width: 92%;
+            margin-top: 8px; width: 94%;
             display: flex; justify-content: space-between; gap: 8px; z-index: 10;
         }
 
@@ -50,18 +50,18 @@
 
         select, button {
             background: #1a1a1a; color: #fff; border: 1px solid #444; 
-            padding: 8px; font-size: 0.85rem; border-radius: 4px;
+            padding: 6px 10px; font-size: 0.85rem; border-radius: 4px;
             outline: none;
         }
         
         #engage-btn.active { background: #dc3545; border-color: #ff0000; }
         #reload-tank { background: #333; }
 
-        /* Gauge Scaled to fit 50vh height perfectly */
+        /* Gauge fits within 40vh */
         #gauge-svg { 
-            height: 75%; /* Controls vertical fit within the 50vh */
-            max-width: 95vw; 
-            margin-top: -10px; /* Pulls gauge up to reduce top gap */
+            height: 78%; 
+            max-width: 98vw; 
+            margin-top: -5px; 
         }
         
         .digital-speed { font-size: 26px; font-weight: bold; fill: #00ff00; }
@@ -83,9 +83,7 @@
 
         <svg id="gauge-svg" viewBox="0 8 200 127">
             <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#222" stroke-width="7" stroke-linecap="round"/>
-            
             <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#ffcc00" stroke-width="7" />
-            
             <path d="M 100 15 A 85 85 0 0 1 143.2 26.5" fill="none" stroke="#00ff00" stroke-width="7" transform="rotate(-27 100 100)" />
             <path d="M 100 15 A 85 85 0 0 0 56.8 26.5" fill="none" stroke="#00ff00" stroke-width="7" transform="rotate(27 100 100)" />
 
