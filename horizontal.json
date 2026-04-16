@@ -1,7 +1,7 @@
 {
   "name": "Phil App Horizontal",
   "short_name": "Phil HSI",
-  "start_url": "Horizontal.html",
+  "start_url": "horizontal.html",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#000000",
