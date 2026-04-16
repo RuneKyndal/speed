@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>the Phil App - Horizontal</title>
-    <link rel="manifest" href="horizontal.json">
+    <title>Phil App - Horizontal Bold</title>
+    <link rel="manifest" href="Horizontal.json">
     <style>
         body, html { 
             margin: 0; padding: 0; height: 100%; 
@@ -25,7 +25,7 @@
         }
 
         select, button {
-            background: #1a1a1a; color: #fff; border: 2px solid #444; 
+            background: #1a1a1a; color: #fff; border: 2px solid #666; 
             padding: 18px 30px; font-size: 1.6rem; border-radius: 12px;
             font-weight: bold; outline: none;
         }
@@ -33,41 +33,55 @@
         #engage-btn { background: #007aff; border: none; min-width: 180px; }
         #engage-btn.active { background: #dc3545; }
 
+        /* Enhanced HSI Scale */
         #scale-container {
-            width: 92vw; height: 100px;
-            position: relative; background: #111;
-            border: 2px solid #333; margin-top: -50px;
+            width: 92vw; height: 110px;
+            position: relative; background: #080808;
+            border: 3px solid #444; margin-top: -40px;
         }
 
-        .zone { position: absolute; height: 100%; top: 0; opacity: 0.25; }
-        .green-zone { left: 35%; width: 30%; background: #00ff00; }
+        /* Color Zones */
+        .zone { position: absolute; height: 100%; top: 0; }
+        .green-zone { 
+            left: 35%; width: 30%; 
+            background: rgba(144, 238, 144, 0.3); /* Lighter Green */
+            border-left: 2px solid #90ee90; border-right: 2px solid #90ee90;
+        }
+        .yellow-left { left: 0; width: 35%; background: rgba(255, 255, 0, 0.15); }
+        .yellow-right { left: 65%; width: 35%; background: rgba(255, 255, 0, 0.15); }
 
+        /* The Bold White Deviation Bar */
         #deviation-bar {
-            position: absolute; width: 12px; height: 150%;
-            background: #fff; top: -25%; left: 50%;
+            position: absolute; width: 14px; height: 160%;
+            background: #fff; top: -30%; left: 50%;
             transform: translateX(-50%);
-            transition: left 0.15s linear;
-            box-shadow: 0 0 15px rgba(255,255,255,0.7);
-            z-index: 5; border-radius: 2px;
+            transition: left 0.1s linear;
+            box-shadow: 0 0 20px rgba(255,255,255,0.8);
+            z-index: 10; border-radius: 3px;
         }
 
+        /* Bold White Center Line */
         .center-line {
             position: absolute; left: 50%; height: 100%;
-            width: 2px; background: #888; z-index: 1;
+            width: 4px; background: #fff; z-index: 2;
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
-        .tick { position: absolute; bottom: 0; width: 2px; height: 20px; background: #444; }
-        .tick.major { height: 40px; background: #888; }
+        /* Bold White Tick Marks */
+        .tick { position: absolute; bottom: 0; width: 3px; height: 25px; background: #fff; opacity: 0.8; }
+        .tick.major { height: 50px; width: 4px; opacity: 1; }
 
         .scale-labels {
-            position: absolute; top: -50px; width: 100%;
+            position: absolute; top: -55px; width: 100%;
             display: flex; justify-content: space-between;
-            font-weight: bold; font-size: 2.2rem;
+            font-weight: bold; font-size: 2.5rem; color: #fff;
         }
 
-        .digital-display { text-align: center; margin-top: 40px; }
-        #speed-val { font-size: 10rem; font-weight: bold; line-height: 0.9; color: #00ff00; }
-        .unit { font-size: 1.5rem; color: #666; letter-spacing: 6px; }
+        /* Speed Readout */
+        .digital-display { text-align: center; margin-top: 50px; }
+        #speed-val { font-size: 11rem; font-weight: bold; line-height: 0.85; color: #90ee90; text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .unit { font-size: 1.6rem; color: #888; letter-spacing: 8px; font-weight: bold; }
+
     </style>
 </head>
 <body>
@@ -79,15 +93,18 @@
             <span id="label-target">18</span>
             <span id="label-max">28</span>
         </div>
+        <div class="yellow-left zone"></div>
+        <div class="green-zone zone"></div>
+        <div class="yellow-right zone"></div>
+        
         <div class="center-line"></div>
-        <div class="zone green-zone"></div>
         <div id="ticks-layer"></div>
         <div id="deviation-bar"></div>
     </div>
 
     <div class="digital-display">
         <div id="speed-val">0</div>
-        <div class="unit">KTS GS v1.5</div>
+        <div class="unit">KTS GS v1.1</div>
     </div>
 
     <div class="bottom-controls">
@@ -109,6 +126,7 @@
     let watchID = null;
 
     function initTicks() {
+        ticksLayer.innerHTML = '';
         for (let i = 0; i <= 20; i++) {
             const tick = document.createElement('div');
             tick.className = 'tick' + (i % 5 === 0 ? ' major' : '');
@@ -136,11 +154,22 @@
     function updatePosition(kts) {
         const target = parseFloat(targetSelect.value);
         const diff = kts - target;
+        
         let percent = 50 + (diff * 5); 
         percent = Math.min(Math.max(percent, 0), 100);
         devBar.style.left = percent + '%';
+        
         speedVal.textContent = Math.round(kts);
-        speedVal.style.color = Math.abs(diff) <= 3 ? "#00ff00" : "#ffcc00";
+
+        // Enhanced Color Logic
+        const absDiff = Math.abs(diff);
+        if (absDiff <= 3) {
+            speedVal.style.color = "#90ee90"; // Light Green
+        } else if (absDiff <= 10) {
+            speedVal.style.color = "#ffff00"; // Yellow
+        } else {
+            speedVal.style.color = "#ff3b30"; // Red (Out of Scale)
+        }
     }
 
     btn.onclick = () => {
