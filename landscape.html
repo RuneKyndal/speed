@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Phil App Landscape</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <select id="target-speed"></select>
+        <button id="engage-btn">ENGAGE GPS</button>
+    </div>
+
+    <svg id="gauge-svg" viewBox="0 8 200 127">
+        <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#ffcc00" stroke-width="6" />
+        <path d="M 100 15 A 85 85 0 0 1 143.2 26.5" fill="none" stroke="#00ff00" stroke-width="6" transform="rotate(-27 100 100)" />
+        <path d="M 100 15 A 85 85 0 0 0 56.8 26.5" fill="none" stroke="#00ff00" stroke-width="6" transform="rotate(27 100 100)" />
+
+        <g id="ticks" stroke="#000" stroke-width="1.2"></g>
+
+        <text x="100" y="122" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
+        <text x="100" y="130" text-anchor="middle" class="digital-unit">KTS GS</text>
+        
+        <g id="needle-group" style="transition: transform 0.1s linear; transform: rotate(0deg); transform-origin: 100px 100px;">
+            <line x1="100" y1="100" x2="100" y2="18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="4" fill="#fff"/>
+        </g>
+    </svg>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
