@@ -4,24 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Phil App Landscape</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Phil App - Landscape</title>
+    <style>
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: #000; color: #fff; font-family: sans-serif;
+            overflow: hidden;
+        }
+        .fullscreen-container { 
+            display: flex; flex-direction: column; 
+            height: 100vh; width: 100vw; 
+            justify-content: center; align-items: center;
+        }
+        
+        #gauge-svg { 
+            height: 85vh; 
+            max-width: 95vw; 
+            margin-top: -20px;
+        }
+
+        .controls-overlay {
+            position: absolute;
+            bottom: 30px;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        select, button {
+            background: #1a1a1a; color: #fff; border: 1px solid #444; 
+            padding: 12px 20px; font-size: 1.2rem; border-radius: 8px;
+            outline: none;
+        }
+        
+        #engage-btn.active { background: #dc3545; border-color: #ff0000; }
+
+        .digital-speed { font-size: 26px; font-weight: bold; fill: #00ff00; }
+        .digital-unit { font-size: 8px; fill: #666; letter-spacing: 1.5px; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <select id="target-speed"></select>
-        <button id="engage-btn">ENGAGE GPS</button>
-    </div>
-
+<div class="fullscreen-container">
     <svg id="gauge-svg" viewBox="0 8 200 127">
         <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round"/>
         <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="#ffcc00" stroke-width="6" />
+        
         <path d="M 100 15 A 85 85 0 0 1 143.2 26.5" fill="none" stroke="#00ff00" stroke-width="6" transform="rotate(-27 100 100)" />
         <path d="M 100 15 A 85 85 0 0 0 56.8 26.5" fill="none" stroke="#00ff00" stroke-width="6" transform="rotate(27 100 100)" />
 
-        <g id="ticks" stroke="#000" stroke-width="1.2"></g>
+        <g stroke="#000" stroke-width="1.2">
+            <line x1="100" y1="15" x2="100" y2="28" />
+            <script>
+                const g = document.currentScript.parentElement;
+                for(let i=-90; i<=90; i+=9) {
+                    if(i===0) continue;
+                    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    l.setAttribute("x1", "100"); l.setAttribute("y1", "15");
+                    l.setAttribute("x2", "100"); l.setAttribute("y2", "23");
+                    l.setAttribute("transform", `rotate(${i} 100 100)`);
+                    g.appendChild(l);
+                }
+            </script>
+        </g>
 
         <text x="100" y="122" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
         <text x="100" y="130" text-anchor="middle" class="digital-unit">KTS GS</text>
@@ -31,8 +78,57 @@
             <circle cx="100" cy="100" r="4" fill="#fff"/>
         </g>
     </svg>
+
+    <div class="controls-overlay">
+        <select id="target-speed"></select>
+        <button id="engage-btn">ENGAGE GPS</button>
+    </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+    const targetSelect = document.getElementById('target-speed');
+    const needleGroup = document.getElementById('needle-group');
+    const speedVal = document.getElementById('speed-val');
+    const btn = document.getElementById('engage-btn');
+    
+    let watchID = null;
+
+    for (let i = 0; i <= 30; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.textContent = i + " KTS";
+        if (i === 18) opt.selected = true;
+        targetSelect.appendChild(opt);
+    }
+
+    function update(kts) {
+        const target = parseFloat(targetSelect.value);
+        const diff = kts - target;
+        let deg = Math.min(Math.max(diff * 9, -90), 90);
+        needleGroup.style.transform = `rotate(${deg}deg)`;
+        speedVal.textContent = Math.round(kts);
+        speedVal.style.fill = Math.abs(diff) <= 3 ? "#00ff00" : "#ffcc00";
+    }
+
+    btn.onclick = () => {
+        if (watchID === null) {
+            if ("geolocation" in navigator) {
+                watchID = navigator.geolocation.watchPosition(
+                    (p) => update((p.coords.speed || 0) * 1.94384),
+                    (e) => console.error(e),
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+                btn.innerText = "STOP";
+                btn.classList.add('active');
+            }
+        } else {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+            btn.innerText = "ENGAGE GPS";
+            btn.classList.remove('active');
+            update(0);
+        }
+    };
+</script>
+
 </body>
 </html>
