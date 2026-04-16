@@ -1,0 +1,16 @@
+{
+  "name": "Phil App Horizontal",
+  "short_name": "Phil HSI",
+  "start_url": "Horizontal.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
