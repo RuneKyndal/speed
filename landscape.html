@@ -39,8 +39,8 @@
             margin-top: 50px;
         }
 
-        /* Styling for the Scale Reference Numbers */
-        .scale-label { font-size: 8px; fill: #aaa; font-weight: bold; }
+        /* Enlarged Scale Labels */
+        .scale-label { font-size: 12px; fill: #fff; font-weight: bold; }
         .digital-speed { font-size: 24px; font-weight: bold; fill: #00ff00; }
         .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
     </style>
@@ -53,16 +53,16 @@
         <button id="engage-btn">ENGAGE</button>
     </div>
 
-    <svg id="gauge-svg" viewBox="0 5 200 135">
+    <svg id="gauge-svg" viewBox="0 0 200 135">
         <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
         
         <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ffcc00" stroke-width="12" />
         <path d="M 100 20 A 80 80 0 0 1 143.2 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(-27 100 100)" />
         <path d="M 100 20 A 80 80 0 0 0 56.8 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(27 100 100)" />
 
-        <text x="15" y="112" text-anchor="middle" class="scale-label" id="label-min">0</text>
-        <text x="100" y="15" text-anchor="middle" class="scale-label" id="label-target">10</text>
-        <text x="185" y="112" text-anchor="middle" class="scale-label" id="label-max">20</text>
+        <text x="15" y="112" text-anchor="middle" class="scale-label" id="label-min">8</text>
+        <text x="100" y="12" text-anchor="middle" class="scale-label" id="label-target">18</text>
+        <text x="185" y="112" text-anchor="middle" class="scale-label" id="label-max">28</text>
 
         <g id="tick-group" stroke="#000" stroke-width="1.5">
             </g>
@@ -90,7 +90,6 @@
 
     let watchID = null;
 
-    // Generate 1-kt Ticks (-10 to +10 range = 180 degrees)
     function drawTicks() {
         tickGroup.innerHTML = '';
         for (let i = -90; i <= 90; i += 9) {
@@ -104,10 +103,9 @@
         }
     }
 
-    // Populate Dropdown and Initial Labels
     for (let i = 0; i <= 30; i++) {
         let opt = document.createElement('option');
-        opt.value = i; opt.innerHTML = i + " KTS";
+        opt.value = i; opt.textContent = i + " KTS";
         if (i === 18) opt.selected = true;
         targetSelect.appendChild(opt);
     }
@@ -124,7 +122,6 @@
     function update(kts) {
         const target = parseFloat(targetSelect.value);
         const diff = kts - target;
-        // 9 degrees per knot (180 deg / 20 kts)
         let deg = Math.min(Math.max(diff * 9, -90), 90);
         needleGroup.style.transform = `rotate(${deg}deg)`;
         speedVal.textContent = Math.round(kts);
