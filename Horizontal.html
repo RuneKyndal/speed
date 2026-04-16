@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Phil App - Horizontal HSI</title>
+    <style>
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: #000; color: #fff; font-family: sans-serif;
+            overflow: hidden;
+        }
+        .container { 
+            display: flex; flex-direction: column; 
+            height: 100vh; width: 100vw; 
+            justify-content: space-around; align-items: center;
+        }
+        
+        .controls {
+            position: absolute; top: 15px; width: 95%;
+            display: flex; justify-content: space-between; z-index: 10;
+        }
+
+        select, button {
+            background: #1a1a1a; color: #fff; border: 2px solid #444; 
+            padding: 12px 24px; font-size: 1.4rem; border-radius: 10px;
+            font-weight: bold; outline: none;
+        }
+        
+        #engage-btn.active { background: #dc3545; border-color: #ff0000; }
+
+        /* Linear Scale Styles */
+        #scale-container {
+            width: 94vw;
+            height: 120px;
+            position: relative;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 4px;
+            margin-top: 40px;
+        }
+
+        /* Color Zones Overlay */
+        .zone { position: absolute; height: 100%; top: 0; opacity: 0.25; }
+        .green-zone { 
+            left: 35%; width: 30%; background: #00ff00; /* +/- 3 kts */
+            border-left: 1px solid #00ff00; border-right: 1px solid #00ff00;
+        }
+
+        /* Moving Deviation Bar (The HSI Line) */
+        #deviation-bar {
+            position: absolute;
+            width: 10px;
+            height: 140%;
+            background: #fff;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.15s linear;
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+            z-index: 5;
+            border-radius: 2px;
+        }
+
+        /* Center Reference Line */
+        .center-line {
+            position: absolute;
+            left: 50%;
+            height: 100%;
+            width: 2px;
+            background: #555;
+            z-index: 1;
+        }
+
+        /* Tick Marks */
+        .tick {
+            position: absolute; bottom: 0; width: 2px; height: 25px; background: #444;
+        }
+        .tick.major { height: 45px; background: #888; }
+
+        /* Labels at 9, 12, 3 o'clock positions (Linearized) */
+        .scale-labels {
+            position: absolute; top: -45px; width: 100%;
+            display: flex; justify-content: space-between;
+            font-weight: bold; font-size: 1.8rem;
+        }
+
+        /* Large Bottom Digital Display */
+        .digital-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #speed-val { font-size: 8rem; font-weight: bold; line-height: 1; color: #00ff00; }
+        .unit { font-size: 1.5rem; color: #666; letter-spacing: 5px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="controls">
+        <select id="target-speed"></select>
+        <button id="engage-btn">ENGAGE</button>
+    </div>
+
+    <div id="scale-container">
+        <div class="scale-labels">
+            <span id="label-min">8</span>
+            <span id="label-target">18</span>
+            <span id="label-max">28</span>
+        </div>
+        
+        <div class="center-line"></div>
+        <div class="zone green-zone"></div>
+        <div id="ticks-layer"></div>
+        <div id="deviation-bar"></div>
+    </div>
+
+    <div class="digital-display">
+        <div id="speed-val">0</div>
+        <div class="unit">KTS GS</div>
+    </div>
+</div>
+
+<script>
+    const targetSelect = document.getElementById('target-speed');
+    const devBar = document.getElementById('deviation-bar');
+    const speedVal = document.getElementById('speed-val');
+    const btn = document.getElementById('engage-btn');
+    const ticksLayer = document.getElementById('ticks-layer');
+    
+    const labelMin = document.getElementById('label-min');
+    const labelTarget = document.getElementById('label-target');
+    const labelMax = document.getElementById('label-max');
+
+    let watchID = null;
+
+    // Create 1-kt Ticks (Total 20 knots range: -10 to +10)
+    function initTicks() {
+        for (let i = 0; i <= 20; i++) {
+            const tick = document.createElement('div');
+            // Major ticks at -10, -5, 0, +5, +10
+            tick.className = 'tick' + (i % 5 === 0 ? ' major' : '');
+            tick.style.left = (i * 5) + '%';
+            ticksLayer.appendChild(tick);
+        }
+    }
+
+    // Populate Target Speeds 0-30 KTS
+    for (let i = 0; i <= 30; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.textContent = i + " KTS";
+        if (i === 18) opt.selected = true;
+        targetSelect.appendChild(opt);
+    }
+
+    function updateScaleUI() {
+        const t = parseInt(targetSelect.value);
+        labelTarget.textContent = t;
+        labelMin.textContent = Math.max(0, t - 10);
+        labelMax.textContent = t + 10;
+    }
+
+    targetSelect.onchange = updateScaleUI;
+
+    function updatePosition(kts) {
+        const target = parseFloat(targetSelect.value);
+        const diff = kts - target;
+        
+        // Linear Mapping: diff of -10 kts = 0%, 0 kts = 50%, +10 kts = 100%
+        let percent = 50 + (diff * 5); 
+        percent = Math.min(Math.max(percent, 0), 100);
+        
+        devBar.style.left = percent + '%';
+        speedVal.textContent = Math.round(kts);
+        
+        // Color logic for digital readout
+        if (Math.abs(diff) <= 3) speedVal.style.fill = "#00ff00";
+        else speedVal.style.fill = "#ffcc00";
+    }
+
+    btn.onclick = () => {
+        if (watchID === null) {
+            if ("geolocation" in navigator) {
+                watchID = navigator.geolocation.watchPosition(
+                    (p) => updatePosition((p.coords.speed || 0) * 1.94384),
+                    (e) => console.error(e),
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+                btn.innerText = "STOP";
+                btn.classList.add('active');
+            }
+        } else {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+            btn.innerText = "ENGAGE";
+            btn.classList.remove('active');
+            updatePosition(0);
+        }
+    };
+
+    initTicks();
+    updateScaleUI();
+</script>
+
+</body>
+</html>
