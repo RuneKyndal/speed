@@ -1,6 +1,6 @@
 {
   "name": "Phil App Horizontal",
-  "short_name": "Phil HSI",
+  "short_name": "Speed",
   "start_url": "horizontal.html",
   "display": "standalone",
   "orientation": "landscape",
