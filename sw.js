@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phil-cockpit-v4';
+const CACHE_NAME = 'phil-cockpit-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -13,17 +13,16 @@ const ASSETS = [
   './sw.js'
 ];
 
-// Force immediate update and cache everything
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      // Use cache.addAll but catch individual failures to avoid breaking the whole install
+      return Promise.allSettled(ASSETS.map(url => cache.add(url)));
     })
   );
 });
 
-// Clean up old caches (v1, v2, v3)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -35,11 +34,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Serve from cache first
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      // Return cached version or attempt network fetch
+      return response || fetch(event.request).catch(() => {
+          // If both fail and it's a navigation request, return landscape.html as fallback
+          if (event.request.mode === 'navigate') {
+              return caches.match('./landscape.html');
+          }
+      });
     })
   );
 });
