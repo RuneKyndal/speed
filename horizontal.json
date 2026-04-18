@@ -1,7 +1,7 @@
 {
-  "name": "Phil App Horizontal",
-  "short_name": "Speed",
-  "start_url": "horizontal.html",
+  "name": "Phil App Landscape",
+  "short_name": "Phil G-L",
+  "start_url": "landscape.html",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#000000",
