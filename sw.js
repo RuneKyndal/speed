@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phil-cockpit-v3';
+const CACHE_NAME = 'phil-cockpit-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -9,10 +9,11 @@ const ASSETS = [
   './tank.html',
   './tank.json',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './sw.js'
 ];
 
-// Install: Fetch and cache all files
+// Force immediate update and cache everything
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -22,7 +23,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: Clean up old caches if version changes
+// Clean up old caches (v1, v2, v3)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -31,9 +32,10 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
 
-// Fetch: Serve from cache first, fallback to network
+// Serve from cache first
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
