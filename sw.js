@@ -1,49 +1,28 @@
-const CACHE_NAME = 'phil-cockpit-v8';
+const CACHE_NAME = 'speed-v1.81';
 const ASSETS = [
   './',
   './index.html',
-  './horizontal.html',
-  './horizontal.json',
-  './landscape.html',
-  './landscape.json',
-  './tank.html',
-  './tank.json',
   './manifest.json',
-  './icon.png',
-  './sw.js'
+  './sw.js',
+  './speed_icon.png'
 ];
 
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Use cache.addAll but catch individual failures to avoid breaking the whole install
-      return Promise.allSettled(ASSETS.map(url => cache.add(url)));
-    })
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
     caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
+      return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
     })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached version or attempt network fetch
-      return response || fetch(event.request).catch(() => {
-          // If both fail and it's a navigation request, return landscape.html as fallback
-          if (event.request.mode === 'navigate') {
-              return caches.match('./landscape.html');
-          }
-      });
-    })
-  );
+self.addEventListener('fetch', (e) => {
+  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
 });
