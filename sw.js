@@ -1,19 +1,29 @@
-const CACHE_NAME = 'heli-v1.27';
+const CACHE_NAME = 'phil-cockpit-v3';
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'sw.js'
+  './',
+  './index.html',
+  './horizontal.html',
+  './horizontal.json',
+  './landscape.html',
+  './landscape.json',
+  './tank.html',
+  './tank.json',
+  './manifest.json',
+  './icon.png'
 ];
 
+// Install: Fetch and cache all files
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
+  );
 });
 
+// Activate: Clean up old caches if version changes
 self.addEventListener('activate', (event) => {
-  // Cleans up old caches (v1.26, etc) to save space on your phone
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
@@ -21,11 +31,13 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  self.clients.claim();
 });
 
+// Fetch: Serve from cache first, fallback to network
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });
