@@ -1,34 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="./landscape.json">
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="theme-color" content="#000000">
-    <title>Speed App - Landscape v1.7</title>
+    <link rel="apple-touch-icon" href="speed_icon.png">
+    <title>Speed GS v1.81</title>
     <style>
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            background: #000; color: #fff; font-family: sans-serif;
-            overflow: hidden;
-        }
-        .container { 
-            display: flex; flex-direction: column; 
-            height: 100vh; width: 100vw; 
-            justify-content: center; align-items: center;
-            background: #000;
-        }
-        .controls {
-            position: absolute; top: 15px; width: 95%;
-            display: flex; justify-content: space-between; z-index: 10;
-        }
-        select, button {
-            background: #1a1a1a; color: #fff; border: 2px solid #444; 
-            padding: 15px 30px; font-size: 1.5rem; border-radius: 10px;
-            font-weight: bold; outline: none; -webkit-tap-highlight-color: transparent;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        .container { display: flex; flex-direction: column; height: 100vh; width: 100vw; justify-content: center; align-items: center; background: #000; }
+        .controls { position: absolute; top: 15px; width: 95%; display: flex; justify-content: space-between; z-index: 10; }
+        select, button { background: #1a1a1a; color: #fff; border: 2px solid #444; padding: 15px 30px; font-size: 1.5rem; border-radius: 10px; font-weight: bold; outline: none; -webkit-tap-highlight-color: transparent; }
         #engage-btn.active { background: #dc3545; border-color: #ff0000; }
         #gauge-svg { width: 98vw; height: 85vh; margin-top: 50px; }
         .scale-label { font-size: 12px; fill: #fff; font-weight: bold; }
@@ -54,8 +39,8 @@
         <text x="185" y="112" text-anchor="middle" class="scale-label" id="label-max">28</text>
         <g id="tick-group" stroke="#000" stroke-width="1.5"></g>
         <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
-        <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS v1.8</text>
-        <g id="needle-group" style="transition: transform 0.2s linear; transform: rotate(0deg); transform-origin: 100px 100px;">
+        <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS v1.81</text>
+        <g id="needle-group" style="transition: transform 0.2s linear; transform: rotate(-90deg); transform-origin: 100px 100px;">
             <line x1="100" y1="100" x2="100" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
             <circle cx="100" cy="100" r="4" fill="#fff"/>
         </g>
@@ -65,17 +50,7 @@
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(reg => {
-                console.log('SW Registered');
-            });
-        });
-
-        // This forces the page to reload once when the new SW takes over
-        let refreshing;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            window.location.reload();
-            refreshing = true;
+            navigator.serviceWorker.register('./sw.js');
         });
     }
 
@@ -129,14 +104,22 @@
 
     btn.onclick = () => {
         if (watchID === null) {
+            // Fix for iPad/iOS: Ensure we check permission state
             if ("geolocation" in navigator) {
+                btn.innerText = "LOCATING...";
                 watchID = navigator.geolocation.watchPosition(
-                    (p) => update((p.coords.speed || 0) * 1.94384),
-                    (e) => alert("GPS Error: " + e.message),
-                    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+                    (p) => {
+                        update((p.coords.speed || 0) * 1.94384);
+                        btn.innerText = "STOP";
+                        btn.classList.add('active');
+                    },
+                    (e) => {
+                        alert("GPS Error: " + e.message + ". Check Privacy -> Location Services.");
+                        watchID = null;
+                        btn.innerText = "ENGAGE";
+                    },
+                    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
                 );
-                btn.innerText = "STOP";
-                btn.classList.add('active');
             }
         } else {
             navigator.geolocation.clearWatch(watchID);
