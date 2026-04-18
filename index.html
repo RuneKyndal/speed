@@ -1,44 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- PWA / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Speed GS">
     <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="speed_icon.png">
-    <title>Speed GS v1.83</title>
+    <link rel="manifest" href="manifest.json">
+
+    <title>Speed GS v1.84</title>
+
     <style>
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            background: #000; color: #fff; font-family: sans-serif; 
-            overflow: hidden; 
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: #000; color: #fff;
+            font-family: sans-serif;
+            overflow: hidden;
+            /* Prevent iOS bounce scroll */
+            position: fixed; width: 100%;
         }
-        .container { 
-            display: flex; flex-direction: column; 
-            height: 100vh; width: 100vw; 
-            justify-content: center; align-items: center; 
+
+        .container {
+            display: flex; flex-direction: column;
+            height: 100vh; width: 100vw;
+            justify-content: center; align-items: center;
         }
-        .controls { 
-            position: absolute; top: 15px; width: 90%; 
-            display: flex; justify-content: space-between; z-index: 10; 
+
+        .controls {
+            position: absolute; top: 15px; width: 90%;
+            display: flex; justify-content: space-between; z-index: 10;
         }
-        select, button { 
-            background: #1a1a1a; color: #fff; border: 2px solid #444; 
-            padding: 12px 20px; font-size: 1.2rem; border-radius: 10px; 
-            font-weight: bold; outline: none; 
+
+        select, button {
+            background: #1a1a1a; color: #fff; border: 2px solid #444;
+            padding: 12px 20px; font-size: 1.2rem; border-radius: 10px;
+            font-weight: bold; outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
         }
+
+        button:active { opacity: 0.8; }
+
         #engage-btn.active { background: #dc3545; border-color: #ff0000; }
-        
-        /* Updated SVG scaling for any orientation */
-        #gauge-svg { 
-            width: 95vw; 
-            height: auto; 
-            max-height: 80vh; 
+
+        #gauge-svg {
+            width: 95vw;
+            height: auto;
+            max-height: 80vh;
             margin-top: 20px;
         }
-        
+
+        /* Error message replaces alert() */
+        #err-msg {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc3545;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+            white-space: nowrap;
+            z-index: 20;
+        }
+
         .scale-label { font-size: 12px; fill: #fff; font-weight: bold; }
         .digital-speed { font-size: 24px; font-weight: bold; fill: #00ff00; }
         .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
@@ -54,38 +87,48 @@
 
     <svg id="gauge-svg" viewBox="0 0 200 135">
         <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ffcc00" stroke-width="12" />
-        <path d="M 100 20 A 80 80 0 0 1 143.2 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(-27 100 100)" />
-        <path d="M 100 20 A 80 80 0 0 0 56.8 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(27 100 100)" />
-        <text x="15" y="112" text-anchor="middle" class="scale-label" id="label-min">8</text>
-        <text x="100" y="12" text-anchor="middle" class="scale-label" id="label-target">18</text>
+        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ffcc00" stroke-width="12"/>
+        <path d="M 100 20 A 80 80 0 0 1 143.2 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(-27 100 100)"/>
+        <path d="M 100 20 A 80 80 0 0 0 56.8 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(27 100 100)"/>
+        <text x="15"  y="112" text-anchor="middle" class="scale-label" id="label-min">8</text>
+        <text x="100" y="12"  text-anchor="middle" class="scale-label" id="label-target">18</text>
         <text x="185" y="112" text-anchor="middle" class="scale-label" id="label-max">28</text>
         <g id="tick-group" stroke="#000" stroke-width="1.5"></g>
         <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
         <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS v1.84</text>
-        <g id="needle-group" style="transition: transform 0.2s linear; transform: rotate(-90deg); transform-origin: 100px 100px;">
+        <g id="needle-group" style="transform: rotate(-90deg); transform-origin: 100px 100px; transition: transform 0.2s linear;">
             <line x1="100" y1="100" x2="100" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
             <circle cx="100" cy="100" r="4" fill="#fff"/>
         </g>
     </svg>
 </div>
 
+<div id="err-msg"></div>
+
 <script>
+    // ── Service Worker Registration ──────────────────────────────────────────
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js');
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js', { scope: './' })
+                .then(reg => console.log('SW registered, scope:', reg.scope))
+                .catch(err => console.warn('SW registration failed:', err));
+        });
     }
 
+    // ── DOM refs ─────────────────────────────────────────────────────────────
     const targetSelect = document.getElementById('target-speed');
-    const needleGroup = document.getElementById('needle-group');
-    const speedVal = document.getElementById('speed-val');
-    const btn = document.getElementById('engage-btn');
-    const labelMin = document.getElementById('label-min');
-    const labelTarget = document.getElementById('label-target');
-    const labelMax = document.getElementById('label-max');
-    const tickGroup = document.getElementById('tick-group');
+    const needleGroup  = document.getElementById('needle-group');
+    const speedVal     = document.getElementById('speed-val');
+    const btn          = document.getElementById('engage-btn');
+    const labelMin     = document.getElementById('label-min');
+    const labelTarget  = document.getElementById('label-target');
+    const labelMax     = document.getElementById('label-max');
+    const tickGroup    = document.getElementById('tick-group');
+    const errMsg       = document.getElementById('err-msg');
 
     let watchID = null;
 
+    // ── Draw tick marks ──────────────────────────────────────────────────────
     function drawTicks() {
         tickGroup.innerHTML = '';
         for (let i = -90; i <= 90; i += 9) {
@@ -97,61 +140,99 @@
         }
     }
 
+    // ── Populate speed selector ──────────────────────────────────────────────
     for (let i = 0; i <= 30; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.textContent = i + " KTS";
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i + " KTS";
         if (i === 18) opt.selected = true;
         targetSelect.appendChild(opt);
     }
 
+    // ── Update arc labels ────────────────────────────────────────────────────
     function updateLabels() {
         const t = parseInt(targetSelect.value);
         labelTarget.textContent = t;
-        labelMin.textContent = Math.max(0, t - 10);
-        labelMax.textContent = t + 10;
+        labelMin.textContent    = Math.max(0, t - 10);
+        labelMax.textContent    = t + 10;
+    }
+    targetSelect.addEventListener('change', updateLabels);
+
+    // ── Show inline error (replaces alert) ───────────────────────────────────
+    function showError(msg) {
+        errMsg.textContent = msg;
+        errMsg.style.display = 'block';
+        setTimeout(() => { errMsg.style.display = 'none'; }, 4000);
     }
 
-    targetSelect.onchange = updateLabels;
-
+    // ── Update needle & digital readout ──────────────────────────────────────
     function update(kts) {
         const target = parseFloat(targetSelect.value);
-        const diff = kts - target;
-        let deg = Math.min(Math.max(diff * 9, -90), 90);
+        const diff   = kts - target;
+        const deg    = Math.min(Math.max(diff * 9, -90), 90);
         needleGroup.style.transform = `rotate(${deg}deg)`;
-        speedVal.textContent = Math.round(kts);
-        speedVal.style.fill = (Math.abs(diff) <= 3) ? "#00ff00" : "#ffcc00";
+        speedVal.textContent        = Math.round(kts);
+        speedVal.style.fill         = (Math.abs(diff) <= 3) ? "#00ff00" : "#ffcc00";
     }
 
-    btn.onclick = () => {
-        if (watchID === null) {
-            if ("geolocation" in navigator) {
-                btn.innerText = "WAITING...";
-                watchID = navigator.geolocation.watchPosition(
-                    (p) => {
-                        update((p.coords.speed || 0) * 1.94384);
-                        btn.innerText = "STOP";
-                        btn.classList.add('active');
-                    },
-                    (e) => {
-                        alert("GPS Error: " + e.message);
-                        stopGps();
-                    },
-                    { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
-                );
-            }
-        } else {
-            stopGps();
-        }
-    };
-
+    // ── Stop GPS ─────────────────────────────────────────────────────────────
     function stopGps() {
-        if (watchID !== null) navigator.geolocation.clearWatch(watchID);
-        watchID = null;
+        if (watchID !== null) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+        }
         btn.innerText = "ENGAGE";
         btn.classList.remove('active');
         update(0);
     }
 
+    // ── ENGAGE button ────────────────────────────────────────────────────────
+    // Uses touchend on iOS to ensure it's treated as a direct user gesture
+    // for the geolocation permission prompt.
+    function handleEngage(e) {
+        e.preventDefault();
+
+        if (watchID !== null) {
+            stopGps();
+            return;
+        }
+
+        if (!("geolocation" in navigator)) {
+            showError("GPS not available on this device.");
+            return;
+        }
+
+        btn.innerText = "WAITING...";
+
+        watchID = navigator.geolocation.watchPosition(
+            (pos) => {
+                const kts = (pos.coords.speed || 0) * 1.94384;
+                update(kts);
+                btn.innerText = "STOP";
+                btn.classList.add('active');
+            },
+            (err) => {
+                // iOS error codes: 1=denied, 2=unavailable, 3=timeout
+                const msgs = {
+                    1: "Location access denied. Enable in Settings → Privacy → Location.",
+                    2: "GPS signal unavailable.",
+                    3: "GPS timed out. Try moving outdoors."
+                };
+                showError(msgs[err.code] || "GPS error: " + err.message);
+                stopGps();
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 15000
+            }
+        );
+    }
+
+    btn.addEventListener('touchend', handleEngage, { passive: false });
+    btn.addEventListener('click',    handleEngage);
+
+    // ── Init ─────────────────────────────────────────────────────────────────
     drawTicks();
     updateLabels();
 </script>
