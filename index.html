@@ -3,238 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <!-- PWA / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Speed GS">
-    <meta name="theme-color" content="#000000">
-    <link rel="apple-touch-icon" href="speed_icon.png">
+    <meta name="apple-mobile-web-app-title" content="214ST W&B">
+    <meta name="theme-color" content="#000">
+    <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-
-    <title>Speed GS v1.84</title>
-
+    <title>Bell 214ST W&amp;B v1.90</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
-        body, html {
-            margin: 0; padding: 0; height: 100%;
-            background: #000; color: #fff;
+        body {
+            margin: 0; padding: 0;
+            background: #fff;
+            color: #000;
             font-family: sans-serif;
-            overflow: hidden;
-            /* Prevent iOS bounce scroll */
-            position: fixed; width: 100%;
+            position: fixed; width: 100%; height: 100%;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
 
-        .container {
-            display: flex; flex-direction: column;
-            height: 100vh; width: 100vw;
-            justify-content: center; align-items: center;
+        .page { width: 100%; padding: 12px 10px 30px 10px; }
+        #flight-page { display: none; background: #f0f0f0; min-height: 100vh; }
+
+        h2 { text-align: center; margin: 0 0 12px 0; font-size: clamp(1rem, 5vw, 1.3rem); }
+
+        .input-block { border: 2px solid #000; border-radius: 10px; margin-bottom: 10px; overflow: hidden; background: #fff; }
+        .input-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #ddd; gap: 8px; }
+        .input-row:last-child { border-bottom: none; }
+        .input-label { font-size: clamp(0.75rem, 3.5vw, 0.95rem); font-weight: bold; flex: 1; }
+        .input-unit { font-size: clamp(0.65rem, 2.5vw, 0.8rem); color: #666; margin-right: 4px; }
+        .fixed-val { font-size: clamp(0.9rem, 4vw, 1.1rem); font-weight: bold; color: #000; min-width: 70px; text-align: right; }
+
+        input[type="number"] {
+            background: #f5f5f5; border: 2px solid #000; border-radius: 6px;
+            color: #000; font-family: sans-serif; font-size: clamp(0.9rem, 4vw, 1.1rem);
+            font-weight: bold; padding: 6px 8px; text-align: right;
+            width: clamp(90px, 28vw, 120px); outline: none; -webkit-appearance: none;
         }
 
-        .controls {
-            position: absolute; top: 15px; width: 90%;
-            display: flex; justify-content: space-between; z-index: 10;
-        }
+        .total-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 2px solid #000; border-radius: 10px; margin-bottom: 10px; background: #fff; }
+        .total-label { font-size: clamp(0.75rem, 3.5vw, 0.95rem); font-weight: bold; }
+        .total-val { font-size: clamp(1.1rem, 5vw, 1.4rem); font-weight: bold; }
+        .total-val.ok { color: #008800; }
+        .total-val.danger { color: #cc0000; }
 
-        select, button {
-            background: #1a1a1a; color: #fff; border: 2px solid #444;
-            padding: 12px 20px; font-size: 1.2rem; border-radius: 10px;
-            font-weight: bold; outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
+        #warn-banner { display: none; background: #cc0000; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: clamp(0.75rem, 3.5vw, 0.9rem); margin-bottom: 10px; }
 
-        button:active { opacity: 0.8; }
+        .fuel-section { border: 2px solid #000; border-radius: 10px; padding: 12px 12px 16px 12px; margin-bottom: 10px; background: #fff; }
+        .fuel-title { font-size: clamp(0.7rem, 3vw, 0.85rem); font-weight: bold; text-transform: uppercase; color: #666; }
+        .fuel-big { font-size: clamp(2.5rem, 15vw, 4rem); font-weight: bold; text-align: center; line-height: 1; margin-bottom: 10px; letter-spacing: -1px; }
+        .fuel-big span { font-size: clamp(1rem, 4vw, 1.2rem); font-weight: normal; color: #666; margin-left: 4px; }
 
-        #engage-btn.active { background: #dc3545; border-color: #ff0000; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 14px; border-radius: 7px; background: #ddd; outline: none; margin: 15px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 44px; height: 44px; border-radius: 50%; background: #000; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 0 2px #000; }
 
-        #gauge-svg {
-            width: 95vw;
-            height: auto;
-            max-height: 80vh;
-            margin-top: 20px;
-        }
+        .result-section { border: 2px solid #000; border-radius: 10px; overflow: hidden; margin-bottom: 10px; background: #fff; }
+        .result-title { background: #000; color: #fff; text-align: center; padding: 8px; font-size: clamp(0.65rem, 2.8vw, 0.8rem); font-weight: bold; text-transform: uppercase; }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .result-item { padding: 16px 10px; text-align: center; border-right: 1px solid #ddd; }
+        .result-item:last-child { border-right: none; }
+        .r-label { font-size: clamp(0.65rem, 2.8vw, 0.8rem); color: #666; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .r-val { font-size: clamp(2rem, 11vw, 3.2rem); font-weight: bold; display: block; line-height: 1; letter-spacing: -1px; }
+        .r-val.ok { color: #008800; }
+        .r-val.warn { color: #cc7700; }
+        .r-val.danger { color: #cc0000; }
 
-        /* Error message replaces alert() */
-        #err-msg {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #dc3545;
-            color: #fff;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            display: none;
-            white-space: nowrap;
-            z-index: 20;
-        }
+        .btn-go { width: 100%; background: #000; color: #fff; border: none; padding: 20px; font-size: 1.4rem; font-weight: bold; border-radius: 12px; margin-top: 10px; text-transform: uppercase; }
+        .btn-back { background: #444; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
 
-        .scale-label { font-size: 12px; fill: #fff; font-weight: bold; }
-        .digital-speed { font-size: 24px; font-weight: bold; fill: #00ff00; }
-        .digital-unit { font-size: 7px; fill: #666; letter-spacing: 1px; }
+        .timer-display { font-size: 4.5rem; font-weight: bold; text-align: center; font-family: monospace; margin: 15px 0; color: #000; letter-spacing: -2px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="controls">
-        <select id="target-speed"></select>
-        <button id="engage-btn">ENGAGE</button>
+<div id="calc-page" class="page">
+    <h2>214ST W&amp;B</h2>
+    <div id="warn-banner">⚠ OVER MAX GROSS</div>
+    <div class="input-block">
+        <div class="input-row"><span class="input-label">Max Gross</span><span class="input-unit">lbs</span><span class="fixed-val">17,500</span></div>
+        <div class="input-row"><span class="input-label">Empty Weight</span><span class="input-unit">lbs</span><input type="number" id="empty-weight" value="10000" step="10"></div>
+        <div class="input-row"><span class="input-label">Crew + Gear</span><span class="input-unit">lbs</span><input type="number" id="crew-gear" value="400" step="10"></div>
+        <div class="input-row"><span class="input-label">Basic A/C</span><span class="input-unit">lbs</span><span class="fixed-val" id="basic-ac">10,400</span></div>
     </div>
-
-    <svg id="gauge-svg" viewBox="0 0 200 135">
-        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ffcc00" stroke-width="12"/>
-        <path d="M 100 20 A 80 80 0 0 1 143.2 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(-27 100 100)"/>
-        <path d="M 100 20 A 80 80 0 0 0 56.8 31.8" fill="none" stroke="#00ff00" stroke-width="12" transform="rotate(27 100 100)"/>
-        <text x="15"  y="112" text-anchor="middle" class="scale-label" id="label-min">8</text>
-        <text x="100" y="12"  text-anchor="middle" class="scale-label" id="label-target">18</text>
-        <text x="185" y="112" text-anchor="middle" class="scale-label" id="label-max">28</text>
-        <g id="tick-group" stroke="#000" stroke-width="1.5"></g>
-        <text x="100" y="124" text-anchor="middle" class="digital-speed" id="speed-val">0</text>
-        <text x="100" y="132" text-anchor="middle" class="digital-unit">KTS GS v1.84</text>
-        <g id="needle-group" style="transform: rotate(-90deg); transform-origin: 100px 100px; transition: transform 0.2s linear;">
-            <line x1="100" y1="100" x2="100" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="100" cy="100" r="4" fill="#fff"/>
-        </g>
-    </svg>
+    <div class="total-row">
+        <span class="total-label">Total Weight</span>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span class="total-val ok" id="total-weight">--</span><span class="input-unit">lbs</span></div>
+    </div>
+    <div class="fuel-section">
+        <div class="fuel-big" id="fuel-display">2,000 <span>lbs</span></div>
+        <input type="range" id="fuel-slider" min="500" max="3000" step="10" value="2000">
+    </div>
+    <div class="result-section">
+        <div class="result-title">Payload</div>
+        <div class="result-grid">
+            <div class="result-item"><span class="r-label">lbs</span><span class="r-val ok" id="res-lbs">--</span></div>
+            <div class="result-item"><span class="r-label">liters</span><span class="r-val ok" id="res-liters">--</span></div>
+        </div>
+    </div>
+    <button class="btn-go" onclick="showFlightPage()">GO FLY</button>
 </div>
 
-<div id="err-msg"></div>
+<div id="flight-page" class="page">
+    <button class="btn-back" onclick="showCalcPage()">BACK</button>
+    <div class="timer-display" id="flight-timer">00:00:00</div>
+    <div class="result-section">
+        <div class="result-title">Live Payload</div>
+        <div class="result-grid">
+            <div class="result-item"><span class="r-label">lbs</span><span class="r-val ok" id="fly-lbs">--</span></div>
+            <div class="result-item"><span class="r-label">liters</span><span class="r-val ok" id="fly-liters">--</span></div>
+        </div>
+    </div>
+    <div class="fuel-section">
+        <div class="fuel-title">Active Fuel</div>
+        <div class="fuel-big" id="fly-fuel-display">-- <span>lbs</span></div>
+        <input type="range" id="fly-fuel-slider" min="500" max="3000" step="10">
+    </div>
+</div>
 
 <script>
-    // ── Service Worker Registration ──────────────────────────────────────────
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js', { scope: './' })
-                .then(reg => console.log('SW registered, scope:', reg.scope))
-                .catch(err => console.warn('SW registration failed:', err));
-        });
+        navigator.serviceWorker.register('./sw.js');
     }
 
-    // ── DOM refs ─────────────────────────────────────────────────────────────
-    const targetSelect = document.getElementById('target-speed');
-    const needleGroup  = document.getElementById('needle-group');
-    const speedVal     = document.getElementById('speed-val');
-    const btn          = document.getElementById('engage-btn');
-    const labelMin     = document.getElementById('label-min');
-    const labelTarget  = document.getElementById('label-target');
-    const labelMax     = document.getElementById('label-max');
-    const tickGroup    = document.getElementById('tick-group');
-    const errMsg       = document.getElementById('err-msg');
+    var MAX_GROSS      = 17500;
+    var FUEL_BURN_RATE = 800; 
 
-    let watchID = null;
+    var emptyInput  = document.getElementById('empty-weight');
+    var crewInput   = document.getElementById('crew-gear');
+    var fuelSlider  = document.getElementById('fuel-slider');
+    var basicAcSpan = document.getElementById('basic-ac');
+    var fuelDisplay = document.getElementById('fuel-display');
+    var totalWtEl   = document.getElementById('total-weight');
+    var warnBanner  = document.getElementById('warn-banner');
+    var resLbs      = document.getElementById('res-lbs');
+    var resLiters   = document.getElementById('res-liters');
 
-    // ── Draw tick marks ──────────────────────────────────────────────────────
-    function drawTicks() {
-        tickGroup.innerHTML = '';
-        for (let i = -90; i <= 90; i += 9) {
-            const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            l.setAttribute("x1", "100"); l.setAttribute("y1", "20");
-            l.setAttribute("x2", "100"); l.setAttribute("y2", "30");
-            l.setAttribute("transform", `rotate(${i} 100 100)`);
-            tickGroup.appendChild(l);
-        }
+    var flyFuelSlider = document.getElementById('fly-fuel-slider');
+    var flyFuelDisplay = document.getElementById('fly-fuel-display');
+    var flyLbs = document.getElementById('fly-lbs');
+    var flyLiters = document.getElementById('fly-liters');
+    var timerEl = document.getElementById('flight-timer');
+
+    var flightStartTime = null;
+    var timerInterval = null;
+    var startFuel = 0;
+
+    function fmt(n) { return Math.round(n).toLocaleString(); }
+    function lbsToLiters(lbs) { return Math.round(lbs * 0.4536); }
+
+    function update() {
+        var empty   = parseFloat(emptyInput.value) || 0;
+        var crew    = parseFloat(crewInput.value)  || 0;
+        var fuel    = parseFloat(fuelSlider.value) || 0;
+        var basic   = empty + crew;
+        var total   = basic + fuel;
+        var payload = MAX_GROSS - total;
+
+        basicAcSpan.textContent = fmt(basic);
+        fuelDisplay.innerHTML = fmt(fuel) + ' <span>lbs</span>';
+        totalWtEl.textContent = fmt(total);
+        
+        totalWtEl.className = total > MAX_GROSS ? 'total-val danger' : 'total-val ok';
+        warnBanner.style.display = total > MAX_GROSS ? 'block' : 'none';
+
+        var cls = payload < 0 ? 'r-val danger' : (payload < 500 ? 'r-val warn' : 'r-val ok');
+        resLbs.textContent = payload < 0 ? 'OVER' : fmt(payload);
+        resLbs.className = cls;
+        resLiters.textContent = payload < 0 ? '--' : fmt(lbsToLiters(payload));
+        resLiters.className = cls;
     }
 
-    // ── Populate speed selector ──────────────────────────────────────────────
-    for (let i = 0; i <= 30; i++) {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = i + " KTS";
-        if (i === 18) opt.selected = true;
-        targetSelect.appendChild(opt);
+    function showFlightPage() {
+        document.getElementById('calc-page').style.display = 'none';
+        document.getElementById('flight-page').style.display = 'block';
+        startFuel = parseFloat(fuelSlider.value);
+        flyFuelSlider.value = startFuel;
+        flightStartTime = Date.now();
+        updateFlightDisplay();
+        timerInterval = setInterval(tick, 1000);
     }
 
-    // ── Update arc labels ────────────────────────────────────────────────────
-    function updateLabels() {
-        const t = parseInt(targetSelect.value);
-        labelTarget.textContent = t;
-        labelMin.textContent    = Math.max(0, t - 10);
-        labelMax.textContent    = t + 10;
-    }
-    targetSelect.addEventListener('change', updateLabels);
-
-    // ── Show inline error (replaces alert) ───────────────────────────────────
-    function showError(msg) {
-        errMsg.textContent = msg;
-        errMsg.style.display = 'block';
-        setTimeout(() => { errMsg.style.display = 'none'; }, 4000);
+    function showCalcPage() {
+        clearInterval(timerInterval);
+        document.getElementById('flight-page').style.display = 'none';
+        document.getElementById('calc-page').style.display = 'block';
+        fuelSlider.value = flyFuelSlider.value;
+        update();
     }
 
-    // ── Update needle & digital readout ──────────────────────────────────────
-    function update(kts) {
-        const target = parseFloat(targetSelect.value);
-        const diff   = kts - target;
-        const deg    = Math.min(Math.max(diff * 9, -90), 90);
-        needleGroup.style.transform = `rotate(${deg}deg)`;
-        speedVal.textContent        = Math.round(kts);
-        speedVal.style.fill         = (Math.abs(diff) <= 3) ? "#00ff00" : "#ffcc00";
+    function tick() {
+        var elapsedMs = Date.now() - flightStartTime;
+        var s = Math.floor(elapsedMs / 1000);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        timerEl.textContent = [h, m, sec].map(v => v.toString().padStart(2, '0')).join(':');
+
+        var elapsedHours = elapsedMs / (1000 * 60 * 60);
+        var currentFuel = Math.max(500, startFuel - (elapsedHours * FUEL_BURN_RATE));
+        
+        flyFuelSlider.value = currentFuel;
+        updateFlightDisplay();
     }
 
-    // ── Stop GPS ─────────────────────────────────────────────────────────────
-    function stopGps() {
-        if (watchID !== null) {
-            navigator.geolocation.clearWatch(watchID);
-            watchID = null;
-        }
-        btn.innerText = "ENGAGE";
-        btn.classList.remove('active');
-        update(0);
+    function updateFlightDisplay() {
+        var currentFuel = parseFloat(flyFuelSlider.value);
+        var payload = MAX_GROSS - ((parseFloat(emptyInput.value)||0) + (parseFloat(crewInput.value)||0) + currentFuel);
+        flyFuelDisplay.innerHTML = fmt(currentFuel) + ' <span>lbs</span>';
+        var cls = payload < 0 ? 'r-val danger' : (payload < 500 ? 'r-val warn' : 'r-val ok');
+        flyLbs.textContent = payload < 0 ? 'OVER' : fmt(payload);
+        flyLbs.className = cls;
+        flyLiters.textContent = payload < 0 ? '--' : fmt(lbsToLiters(payload));
+        flyLiters.className = cls;
     }
 
-    // ── ENGAGE button ────────────────────────────────────────────────────────
-    // Uses touchend on iOS to ensure it's treated as a direct user gesture
-    // for the geolocation permission prompt.
-    function handleEngage(e) {
-        e.preventDefault();
+    flyFuelSlider.addEventListener('input', function() {
+        var currentManualFuel = parseFloat(flyFuelSlider.value);
+        var elapsedHours = (Date.now() - flightStartTime) / (1000 * 60 * 60);
+        // Recalculate theoretical start fuel so the existing timer offset 
+        // results in exactly the manual fuel value we just selected.
+        startFuel = currentManualFuel + (FUEL_BURN_RATE * elapsedHours);
+        updateFlightDisplay();
+    });
 
-        if (watchID !== null) {
-            stopGps();
-            return;
-        }
-
-        if (!("geolocation" in navigator)) {
-            showError("GPS not available on this device.");
-            return;
-        }
-
-        btn.innerText = "WAITING...";
-
-        watchID = navigator.geolocation.watchPosition(
-            (pos) => {
-                const kts = (pos.coords.speed || 0) * 1.94384;
-                update(kts);
-                btn.innerText = "STOP";
-                btn.classList.add('active');
-            },
-            (err) => {
-                // iOS error codes: 1=denied, 2=unavailable, 3=timeout
-                const msgs = {
-                    1: "Location access denied. Enable in Settings → Privacy → Location.",
-                    2: "GPS signal unavailable.",
-                    3: "GPS timed out. Try moving outdoors."
-                };
-                showError(msgs[err.code] || "GPS error: " + err.message);
-                stopGps();
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 15000
-            }
-        );
-    }
-
-    btn.addEventListener('touchend', handleEngage, { passive: false });
-    btn.addEventListener('click',    handleEngage);
-
-    // ── Init ─────────────────────────────────────────────────────────────────
-    drawTicks();
-    updateLabels();
+    fuelSlider.addEventListener('input', update);
+    emptyInput.addEventListener('input', update);
+    crewInput.addEventListener('input',  update);
+    update();
 </script>
 </body>
 </html>
