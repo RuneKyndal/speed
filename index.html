@@ -9,54 +9,32 @@
     <meta name="theme-color" content="#000">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-    <title>Bell 214ST W&amp;B v1.90</title>
+    <title>Bell 214ST W&amp;B v1.91</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-
-        body {
-            margin: 0; padding: 0;
-            background: #fff;
-            color: #000;
-            font-family: sans-serif;
-            position: fixed; width: 100%; height: 100%;
-            overflow-y: auto; -webkit-overflow-scrolling: touch;
-        }
-
+        body { margin: 0; padding: 0; background: #fff; color: #000; font-family: sans-serif; position: fixed; width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .page { width: 100%; padding: 12px 10px 30px 10px; }
         #flight-page { display: none; background: #f0f0f0; min-height: 100vh; }
-
         h2 { text-align: center; margin: 0 0 12px 0; font-size: clamp(1rem, 5vw, 1.3rem); }
-
         .input-block { border: 2px solid #000; border-radius: 10px; margin-bottom: 10px; overflow: hidden; background: #fff; }
         .input-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #ddd; gap: 8px; }
         .input-row:last-child { border-bottom: none; }
         .input-label { font-size: clamp(0.75rem, 3.5vw, 0.95rem); font-weight: bold; flex: 1; }
         .input-unit { font-size: clamp(0.65rem, 2.5vw, 0.8rem); color: #666; margin-right: 4px; }
         .fixed-val { font-size: clamp(0.9rem, 4vw, 1.1rem); font-weight: bold; color: #000; min-width: 70px; text-align: right; }
-
-        input[type="number"] {
-            background: #f5f5f5; border: 2px solid #000; border-radius: 6px;
-            color: #000; font-family: sans-serif; font-size: clamp(0.9rem, 4vw, 1.1rem);
-            font-weight: bold; padding: 6px 8px; text-align: right;
-            width: clamp(90px, 28vw, 120px); outline: none; -webkit-appearance: none;
-        }
-
+        input[type="number"] { background: #f5f5f5; border: 2px solid #000; border-radius: 6px; color: #000; font-family: sans-serif; font-size: clamp(0.9rem, 4vw, 1.1rem); font-weight: bold; padding: 6px 8px; text-align: right; width: clamp(90px, 28vw, 120px); outline: none; -webkit-appearance: none; }
         .total-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 2px solid #000; border-radius: 10px; margin-bottom: 10px; background: #fff; }
         .total-label { font-size: clamp(0.75rem, 3.5vw, 0.95rem); font-weight: bold; }
         .total-val { font-size: clamp(1.1rem, 5vw, 1.4rem); font-weight: bold; }
         .total-val.ok { color: #008800; }
         .total-val.danger { color: #cc0000; }
-
         #warn-banner { display: none; background: #cc0000; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: clamp(0.75rem, 3.5vw, 0.9rem); margin-bottom: 10px; }
-
         .fuel-section { border: 2px solid #000; border-radius: 10px; padding: 12px 12px 16px 12px; margin-bottom: 10px; background: #fff; }
         .fuel-title { font-size: clamp(0.7rem, 3vw, 0.85rem); font-weight: bold; text-transform: uppercase; color: #666; }
         .fuel-big { font-size: clamp(2.5rem, 15vw, 4rem); font-weight: bold; text-align: center; line-height: 1; margin-bottom: 10px; letter-spacing: -1px; }
         .fuel-big span { font-size: clamp(1rem, 4vw, 1.2rem); font-weight: normal; color: #666; margin-left: 4px; }
-
         input[type="range"] { -webkit-appearance: none; width: 100%; height: 14px; border-radius: 7px; background: #ddd; outline: none; margin: 15px 0; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 44px; height: 44px; border-radius: 50%; background: #000; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 0 2px #000; }
-
         .result-section { border: 2px solid #000; border-radius: 10px; overflow: hidden; margin-bottom: 10px; background: #fff; }
         .result-title { background: #000; color: #fff; text-align: center; padding: 8px; font-size: clamp(0.65rem, 2.8vw, 0.8rem); font-weight: bold; text-transform: uppercase; }
         .result-grid { display: grid; grid-template-columns: 1fr 1fr; }
@@ -67,10 +45,8 @@
         .r-val.ok { color: #008800; }
         .r-val.warn { color: #cc7700; }
         .r-val.danger { color: #cc0000; }
-
         .btn-go { width: 100%; background: #000; color: #fff; border: none; padding: 20px; font-size: 1.4rem; font-weight: bold; border-radius: 12px; margin-top: 10px; text-transform: uppercase; }
         .btn-back { background: #444; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
-
         .timer-display { font-size: 4.5rem; font-weight: bold; text-align: center; font-family: monospace; margin: 15px 0; color: #000; letter-spacing: -2px; }
     </style>
 </head>
@@ -121,22 +97,18 @@
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js');
-    }
-
-    var MAX_GROSS      = 17500;
+    var MAX_GROSS = 17500;
     var FUEL_BURN_RATE = 800; 
 
-    var emptyInput  = document.getElementById('empty-weight');
-    var crewInput   = document.getElementById('crew-gear');
-    var fuelSlider  = document.getElementById('fuel-slider');
+    var emptyInput = document.getElementById('empty-weight');
+    var crewInput = document.getElementById('crew-gear');
+    var fuelSlider = document.getElementById('fuel-slider');
     var basicAcSpan = document.getElementById('basic-ac');
     var fuelDisplay = document.getElementById('fuel-display');
-    var totalWtEl   = document.getElementById('total-weight');
-    var warnBanner  = document.getElementById('warn-banner');
-    var resLbs      = document.getElementById('res-lbs');
-    var resLiters   = document.getElementById('res-liters');
+    var totalWtEl = document.getElementById('total-weight');
+    var warnBanner = document.getElementById('warn-banner');
+    var resLbs = document.getElementById('res-lbs');
+    var resLiters = document.getElementById('res-liters');
 
     var flyFuelSlider = document.getElementById('fly-fuel-slider');
     var flyFuelDisplay = document.getElementById('fly-fuel-display');
@@ -144,25 +116,24 @@
     var flyLiters = document.getElementById('fly-liters');
     var timerEl = document.getElementById('flight-timer');
 
-    var flightStartTime = null;
+    var flightStartTime = null; 
+    var burnReferenceTime = null; 
+    var currentFlightFuel = 0; 
     var timerInterval = null;
-    var startFuel = 0;
 
     function fmt(n) { return Math.round(n).toLocaleString(); }
     function lbsToLiters(lbs) { return Math.round(lbs * 0.4536); }
 
     function update() {
-        var empty   = parseFloat(emptyInput.value) || 0;
-        var crew    = parseFloat(crewInput.value)  || 0;
-        var fuel    = parseFloat(fuelSlider.value) || 0;
-        var basic   = empty + crew;
-        var total   = basic + fuel;
+        var empty = parseFloat(emptyInput.value) || 0;
+        var crew = parseFloat(crewInput.value) || 0;
+        var fuel = parseFloat(fuelSlider.value) || 0;
+        var total = empty + crew + fuel;
         var payload = MAX_GROSS - total;
 
-        basicAcSpan.textContent = fmt(basic);
+        basicAcSpan.textContent = fmt(empty + crew);
         fuelDisplay.innerHTML = fmt(fuel) + ' <span>lbs</span>';
         totalWtEl.textContent = fmt(total);
-        
         totalWtEl.className = total > MAX_GROSS ? 'total-val danger' : 'total-val ok';
         warnBanner.style.display = total > MAX_GROSS ? 'block' : 'none';
 
@@ -176,9 +147,13 @@
     function showFlightPage() {
         document.getElementById('calc-page').style.display = 'none';
         document.getElementById('flight-page').style.display = 'block';
-        startFuel = parseFloat(fuelSlider.value);
-        flyFuelSlider.value = startFuel;
-        flightStartTime = Date.now();
+        
+        var now = Date.now();
+        flightStartTime = now; 
+        burnReferenceTime = now; 
+        currentFlightFuel = parseFloat(fuelSlider.value);
+        
+        flyFuelSlider.value = currentFlightFuel;
         updateFlightDisplay();
         timerInterval = setInterval(tick, 1000);
     }
@@ -192,24 +167,33 @@
     }
 
     function tick() {
-        var elapsedMs = Date.now() - flightStartTime;
-        var s = Math.floor(elapsedMs / 1000);
-        var h = Math.floor(s / 3600);
-        var m = Math.floor((s % 3600) / 60);
-        var sec = s % 60;
-        timerEl.textContent = [h, m, sec].map(v => v.toString().padStart(2, '0')).join(':');
-
-        var elapsedHours = elapsedMs / (1000 * 60 * 60);
-        var currentFuel = Math.max(500, startFuel - (elapsedHours * FUEL_BURN_RATE));
+        var now = Date.now();
         
-        flyFuelSlider.value = currentFuel;
+        // 1. UPDATE TIMER (Continuous from start)
+        var totalElapsedSec = Math.floor((now - flightStartTime) / 1000);
+        var h = Math.floor(totalElapsedSec / 3600);
+        var m = Math.floor((totalElapsedSec % 3600) / 60);
+        var s = totalElapsedSec % 60;
+        timerEl.textContent = [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
+
+        // 2. CALCULATE BURN (Since last reference)
+        var burnElapsedHours = (now - burnReferenceTime) / (1000 * 60 * 60);
+        var fuelLost = burnElapsedHours * FUEL_BURN_RATE;
+        
+        currentFlightFuel = Math.max(500, currentFlightFuel - fuelLost);
+        burnReferenceTime = now; // Update reference for next tick
+        
+        flyFuelSlider.value = currentFlightFuel;
         updateFlightDisplay();
     }
 
     function updateFlightDisplay() {
-        var currentFuel = parseFloat(flyFuelSlider.value);
-        var payload = MAX_GROSS - ((parseFloat(emptyInput.value)||0) + (parseFloat(crewInput.value)||0) + currentFuel);
-        flyFuelDisplay.innerHTML = fmt(currentFuel) + ' <span>lbs</span>';
+        var fuel = parseFloat(flyFuelSlider.value);
+        var empty = parseFloat(emptyInput.value) || 0;
+        var crew = parseFloat(crewInput.value) || 0;
+        var payload = MAX_GROSS - (empty + crew + fuel);
+
+        flyFuelDisplay.innerHTML = fmt(fuel) + ' <span>lbs</span>';
         var cls = payload < 0 ? 'r-val danger' : (payload < 500 ? 'r-val warn' : 'r-val ok');
         flyLbs.textContent = payload < 0 ? 'OVER' : fmt(payload);
         flyLbs.className = cls;
@@ -217,18 +201,16 @@
         flyLiters.className = cls;
     }
 
+    // SLIDER ADJUSTMENT: Does not touch flightStartTime
     flyFuelSlider.addEventListener('input', function() {
-        var currentManualFuel = parseFloat(flyFuelSlider.value);
-        var elapsedHours = (Date.now() - flightStartTime) / (1000 * 60 * 60);
-        // Recalculate theoretical start fuel so the existing timer offset 
-        // results in exactly the manual fuel value we just selected.
-        startFuel = currentManualFuel + (FUEL_BURN_RATE * elapsedHours);
+        currentFlightFuel = parseFloat(flyFuelSlider.value);
+        burnReferenceTime = Date.now(); // Reset burn math to "now" from this new value
         updateFlightDisplay();
     });
 
     fuelSlider.addEventListener('input', update);
     emptyInput.addEventListener('input', update);
-    crewInput.addEventListener('input',  update);
+    crewInput.addEventListener('input', update);
     update();
 </script>
 </body>
